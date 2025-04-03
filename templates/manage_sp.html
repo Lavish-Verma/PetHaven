@@ -19,48 +19,65 @@
         .card {
             border-radius: 12px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            padding: 20px;
+            padding: 15px;
             margin-bottom: 20px;
+            transition: transform 0.3s ease-in-out;
+        }
+        .card:hover {
+            transform: scale(1.03);
         }
         .btn-container {
             display: flex;
-            justify-content: center;
-            gap: 20px;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .btn-success {
+            background-color: #2E7D32 !important;
+            border: none;
+        }
+        .btn-danger {
+            background-color: #D32F2F !important;
+            border: none;
         }
         iframe {
             border: 2px solid #28a745;
             border-radius: 8px;
+            width: 100%;
+            height: 200px;
         }
     </style>
 </head>
 <body>
     <div class="navbar">Manage Service Providers</div>
     <div class="container mt-4">
-        {% for service_provider in service_providers %}
-        <div class="card">
-            <h3 class="text-center">{{ service_provider.user.user_name }}'s Details</h3>
-            <hr>
-            <p><strong>Name:</strong> {{ service_provider.user.user_name }}</p>
-            <p><strong>Email:</strong> {{ service_provider.user.email_id }}</p>
-            <p><strong>City:</strong> {{ service_provider.city }}</p>
-            <p><strong>State:</strong> {{ service_provider.state }}</p>
-            <p><strong>Experience:</strong> {{ service_provider.experience }} years</p>
-            <p><strong>Hourly Rate:</strong> ${{ service_provider.hourly_rate }}</p>
-            <p><strong>Description:</strong> {{ service_provider.description }}</p>
-            
-            <h4 class="mt-4">Uploaded Documents</h4>
-            <div class="d-flex justify-content-center flex-wrap">
-                {% for doc in service_provider.documents %}
-                    <iframe src="{{ url_for('static', filename='uploads/' + doc.filename) }}" width="300" height="400" class="m-2"></iframe>
-                {% endfor %}
+        <div class="row">
+            {% for service_provider in service_providers %}
+            <div class="col-md-4 col-sm-6 col-12"> <!-- Responsive grid: 3 per row on desktop, 2 on tablets, 1 on mobile -->
+                <div class="card p-3 shadow-sm">
+                    <h5 class="text-center"><b>{{ service_provider.name }}</b></h5>
+                    <hr>
+                    <p><strong>City:</strong> {{ service_provider.address }}</p>
+                    <p><strong>State:</strong> {{ service_provider.state }}</p>
+                    <p><strong>Experience:</strong> {{ service_provider.experience }} years</p>
+                    <p><strong>Hourly Rate:</strong> ${{ service_provider.hourly_rate }}</p>
+
+                    <h6 class="text-center mt-3">Uploaded Documents</h6>
+                    <div class="text-center">
+                        {% if service_provider.documents %}
+                            <iframe src="{{ url_for('static', filename='uploads/' + service_provider.document_folder + '/' + service_provider.documents[0].filename) }}" class="mb-2"></iframe>
+                        {% else %}
+                            <p class="text-muted">No documents uploaded</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="btn-container mt-3">
+                        <button class="btn btn-success btn-sm approve-btn" data-url="{{ url_for('approve_service_provider', sp_id=service_provider.service_id) }}">Approve</button>
+                        <button class="btn btn-danger btn-sm reject-btn" data-url="{{ url_for('reject_service_provider', sp_id=service_provider.service_id) }}">Reject</button>
+                    </div>
+                </div>
             </div>
-            
-            <div class="btn-container mt-4">
-                <button class="btn btn-success approve-btn" data-url="{{ url_for('approve_service_provider', sp_id=service_provider.service_provider_id) }}">Approve</button>
-                <button class="btn btn-danger reject-btn" data-url="{{ url_for('reject_service_provider', sp_id=service_provider.service_provider_id) }}">Reject</button>
-            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
     <script src="/static/Manage_sp.js"></script>
 </body>
