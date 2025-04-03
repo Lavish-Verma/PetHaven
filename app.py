@@ -275,33 +275,29 @@ def manage_service_providers():
     service_providers = ServiceProvider.query.filter_by(status='Pending').all()
     return render_template('manage_sp.html', service_providers=service_providers)
 
-# ---------------------- APPROVE SERVICE PROVIDER ---------------------- #
+---------------------- APPROVE SERVICE PROVIDER ---------------------- #
 
-@app.route('/admin/approve_service_provider/<int:sp_id>', methods=['POST'])
+@app.route('/admin/approve_service_provider/<sp_id>', methods=['POST'])
 def approve_service_provider(sp_id):
     """ Approve a service provider and redirect them to their dashboard """
     service_provider = ServiceProvider.query.get(sp_id)
     if service_provider:
-        service_provider.status = 'Approved'
+        service_provider.status = "Approved"
         db.session.commit()
-        flash("Service Provider approved successfully!", "success")
-        return '', 200  # AJAX success response
-    return '', 400  # AJAX failure response
+        return jsonify({"success": True, "id": sp_id})  # ✅ Return the ID
+    return jsonify({"success": False, "message": "Service provider not found"}), 404
 
 # ---------------------- REJECT SERVICE PROVIDER ---------------------- #
 
-@app.route('/admin/reject_service_provider/<int:sp_id>', methods=['POST'])
+@app.route('/admin/reject_service_provider/<sp_id>', methods=['POST'])
 def reject_service_provider(sp_id):
     """ Reject a service provider and redirect them to the Get Started page """
     service_provider = ServiceProvider.query.get(sp_id)
     if service_provider:
-        service_provider.status = 'Rejected'
+        db.session.delete(service_provider)  # ✅ Remove from database
         db.session.commit()
-        flash("Service Provider rejected!", "danger")
-        return '', 200  # AJAX success response
-    return '', 400  # AJAX failure response
-
-
+        return jsonify({"success": True, "id": sp_id})  # ✅ Return the ID
+    return jsonify({"success": False, "message": "Service provider not found"}), 404
 @app.route('/customer_dashboard')
 def customer_dashboard():
     return render_template('customer_dashboard.html')
